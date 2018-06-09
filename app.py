@@ -47,7 +47,7 @@ for l in lever:
 
 	if response.status_code != 200:
 		print('Status:', response.status_code, 'Headers:', response.headers, 'Error Response:', response.text)
-		continue
+		continues
 	print(l["url"])
 	for job in response.json():
 		if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]):
@@ -57,7 +57,7 @@ now = datetime.now()
 
 
 sg = sendgrid.SendGridAPIClient(apikey=os.environ['SENDGRID_API_KEY'])
-from_email = Email("intern@jobs.com")
+from_email = Email("intern@jobs.com", "InternTracker")
 to_email = Email(os.environ['TO_EMAIL'])
 subject = "Internships & Co-ops" + " - " + now.strftime("%x")
 content = Content("text/plain", email_list)
