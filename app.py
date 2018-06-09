@@ -2,6 +2,7 @@ import sendgrid
 import os
 import json
 import requests
+from datetime import datetime
 from sendgrid.helpers.mail import *
 
 filter_words = set(["co-op", "coop", "internship", "intern", "student"])
@@ -52,12 +53,13 @@ for l in lever:
 		if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]):
 			email_list += l["name"] + " - " + job["text"] + ": " + job["hostedUrl"] + " \n\n"
 
+now = datetime.now()
 
 
 sg = sendgrid.SendGridAPIClient(apikey=os.environ['SENDGRID_API_KEY'])
 from_email = Email("intern@jobs.com")
 to_email = Email(os.environ['TO_EMAIL'])
-subject = "Internships & Co-ops"
+subject = "Internships & Co-ops" + " - " + now.strftime("%x")
 content = Content("text/plain", email_list)
 mail = Mail(from_email, subject, to_email, content)
 response = sg.client.mail.send.post(request_body=mail.get())
