@@ -4,6 +4,28 @@ import json
 import requests
 from datetime import datetime
 from sendgrid.helpers.mail import *
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
+
+def requests_retry_session(
+    retries=3,
+    backoff_factor=0.3,
+    status_forcelist=(500, 502, 504),
+    session=None,
+):
+    session = session or requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
 
 filter_words = set(["co-op", "coop", "internship", "intern", "student"])
 blacklist = set(["internal", "international"])
@@ -18,14 +40,9 @@ email_list = []
 
 for g in greenhouse:
 	try:
-		response = requests.get(g["url"], timeout=2)
-	except requests.exceptions.Timeout:
-		print("Timeout on: " + g["url"])
-		email_list.append("Timeout on: " + g["url"])
-		continue
-	except requests.exceptions.ConnectionError:
-		print("Connection Error on: " + g["url"])
-		email_list.append("Connection Error on: " + g["url"])
+		response = requests_retry_session().get(g["url"], timeout=2)
+	except Exception as x:
+		print(x.__class__.__name__ + " : " + g["url"])
 		continue
 
 	if response.status_code != 200:
@@ -39,14 +56,9 @@ for g in greenhouse:
 
 for l in lever:
 	try:
-		response = requests.get(l["url"], timeout=2)
-	except requests.exceptions.Timeout:
-		print("Timeout on: " + l["url"])
-		email_list.append("Timeout on: " + l["url"])
-		continue
-	except requests.exceptions.ConnectionError:
-		print("Connection Error on: " + l["url"])
-		email_list.append("Connection Error on: " + l["url"])
+		response = requests_retry_session().get(l["url"], timeout=2)
+	except Exception as x:
+		print(x.__class__.__name__ + " : " + l["url"])
 		continue
 
 	if response.status_code != 200:
