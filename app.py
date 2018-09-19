@@ -43,6 +43,7 @@ for g in greenhouse:
 		response = requests_retry_session().get(g["url"], timeout=2)
 	except Exception as x:
 		print(x.__class__.__name__ + " : " + g["url"])
+		email_list.append(x.__class__.__name__ + " : " + g["url"])
 		continue
 
 	if response.status_code != 200:
@@ -59,6 +60,7 @@ for l in lever:
 		response = requests_retry_session().get(l["url"], timeout=2)
 	except Exception as x:
 		print(x.__class__.__name__ + " : " + l["url"])
+		email_list.append(x.__class__.__name__ + " : " + l["url"])
 		continue
 
 	if response.status_code != 200:
