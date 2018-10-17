@@ -65,7 +65,7 @@ for l in lever:
 
 	if response.status_code != 200:
 		print('Status:', response.status_code, 'Headers:', response.headers, 'Error Response:', response.text)
-		continues
+		continue
 	print(l["url"])
 	for job in response.json():
 		if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]):
