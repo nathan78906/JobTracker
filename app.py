@@ -42,43 +42,45 @@ for g in greenhouse:
 	try:
 		response = requests_retry_session().get(g["url"], timeout=2)
 	except Exception as x:
-		print(x.__class__.__name__ + " : " + g["url"])
-		email_list.append(x.__class__.__name__ + " : " + g["url"])
+		print("{} : {}".format(x.__class__.__name__, g["url"]))
+		email_list.append("{} : {}".format(x.__class__.__name__, g["url"]))
 		continue
 
 	if response.status_code != 200:
-		print('Status:', response.status_code, 'Headers:', response.headers, 'Error Response:', response.text)
+		print("Status: {}, Headers: {}, Error Response: {}".format(response.status_code, response.headers, response.text))
+		email_list.append("{} : {}".format(response.status_code, g["url"]))
 		continue
+
 	print(g["url"])
 	for job in response.json()["jobs"]:
 		if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]):
-			email_list.append(g["name"] + " - " + job["title"] + ": " + job["absolute_url"])
+			email_list.append("{} - {} : {}".format(g["name"], job["title"], job["absolute_url"]))
 
 
 for l in lever:
 	try:
 		response = requests_retry_session().get(l["url"], timeout=2)
 	except Exception as x:
-		print(x.__class__.__name__ + " : " + l["url"])
-		email_list.append(x.__class__.__name__ + " : " + l["url"])
+		print("{} : {}".format(x.__class__.__name__, l["url"]))
+		email_list.append("{} : {}".format(x.__class__.__name__, l["url"]))
 		continue
 
 	if response.status_code != 200:
-		print('Status:', response.status_code, 'Headers:', response.headers, 'Error Response:', response.text)
+		print("Status: {}, Headers: {}, Error Response: {}".format(response.status_code, response.headers, response.text))
+		email_list.append("{} : {}".format(response.status_code, l["url"]))
 		continue
+		
 	print(l["url"])
 	for job in response.json():
 		if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]):
-			email_list.append(l["name"] + " - " + job["text"] + ": " + job["hostedUrl"])
-
+			email_list.append("{} - {} : {}".format(l["name"], job["text"], job["hostedUrl"]))
 
 now = datetime.now()
-
 
 sg = sendgrid.SendGridAPIClient(apikey=os.environ['SENDGRID_API_KEY'])
 from_email = Email("intern@jobs.com", "InternTracker")
 to_email = Email(os.environ['TO_EMAIL'])
-subject = "Internships & Co-ops" + " - " + now.strftime("%x")
+subject = "Internships & Co-ops - {}".format(now.strftime("%x"))
 content = Content("text/plain", "\n\n".join(email_list))
 mail = Mail(from_email, subject, to_email, content)
 response = sg.client.mail.send.post(request_body=mail.get())
