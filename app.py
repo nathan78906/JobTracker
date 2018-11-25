@@ -26,18 +26,16 @@ def requests_retry_session(retries=3, backoff_factor=0.3, status_forcelist=(500,
 filter_words = set(["co-op", "coop", "internship", "intern", "student"])
 blacklist = set(["internal", "international"])
 
-with open('greenhouse.json') as json_data:
-    greenhouse = json.load(json_data)
-    
-with open('lever.json') as json_data:
-    lever = json.load(json_data)
-
 mydb = MySQLdb.connect(host=os.environ['MARIADB_HOSTNAME'],
     user=os.environ['MARIADB_USERNAME'],
     passwd=os.environ['MARIADB_PASSWORD'],
     db=os.environ['MARIADB_DATABASE'])
 cursor = mydb.cursor()
 
+cursor.execute("select * from greenhouse_links")
+greenhouse = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
+cursor.execute("select * from lever_links")
+lever = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
 cursor.execute("select * from greenhouse")
 greenhouse_list = [item[0] for item in cursor.fetchall()]
 cursor.execute("select * from lever")
@@ -62,9 +60,13 @@ for g in greenhouse:
     for job in response.json()["jobs"]:
         if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]) and str(job["id"]) not in greenhouse_list:
             email_list.append("{} - {} : {}".format(g["name"], job["title"], job["absolute_url"]))
-            cursor.execute("INSERT INTO greenhouse(`id`) VALUES('{}')".format(job["id"]))
-            mydb.commit()
-
+            try:
+                cursor.execute("INSERT INTO greenhouse(`id`) VALUES('{}')".format(job["id"]))
+                mydb.commit()
+            except Exception as x:
+                print("{} : {}".format(x.__class__.__name__, g["url"]))
+                email_list.append("{} : {}".format(x.__class__.__name__, g["url"]))
+                continue
 
 for l in lever:
     try:
@@ -83,8 +85,13 @@ for l in lever:
     for job in response.json():
         if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]) and str(job["id"]) not in lever_list:
             email_list.append("{} - {} : {}".format(l["name"], job["text"], job["hostedUrl"]))
-            cursor.execute("INSERT INTO lever(`id`) VALUES('{}')".format(job["id"]))
-            mydb.commit()
+            try:
+                cursor.execute("INSERT INTO lever(`id`) VALUES('{}')".format(job["id"]))
+                mydb.commit()
+            except Exception as x:
+                print("{} : {}".format(x.__class__.__name__, l["url"]))
+                email_list.append("{} : {}".format(x.__class__.__name__, l["url"]))
+                continue
 
 cursor.close()
 now = datetime.now()
