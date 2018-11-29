@@ -10,31 +10,31 @@ from requests.packages.urllib3.util.retry import Retry
 
 
 def requests_retry_session(
-    retries=3,
-    backoff_factor=0.3,
-    status_forcelist=(500, 502, 504),
-    session=None,
+	retries=3,
+	backoff_factor=0.3,
+	status_forcelist=(500, 502, 504),
+	session=None,
 ):
-    session = session or requests.Session()
-    retry = Retry(
-        total=retries,
-        read=retries,
-        connect=retries,
-        backoff_factor=backoff_factor,
-        status_forcelist=status_forcelist,
-    )
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-    return session
+	session = session or requests.Session()
+	retry = Retry(
+		total=retries,
+		read=retries,
+		connect=retries,
+		backoff_factor=backoff_factor,
+		status_forcelist=status_forcelist,
+	)
+	adapter = HTTPAdapter(max_retries=retry)
+	session.mount('http://', adapter)
+	session.mount('https://', adapter)
+	return session
 
 filter_words = set(["co-op", "coop", "internship", "intern", "student"])
 blacklist = set(["internal", "international"])
 
 mydb = MySQLdb.connect(host=os.environ['MARIADB_HOSTNAME'],
-    user=os.environ['MARIADB_USERNAME'],
-    passwd=os.environ['MARIADB_PASSWORD'],
-    db=os.environ['MARIADB_DATABASE'])
+	user=os.environ['MARIADB_USERNAME'],
+	passwd=os.environ['MARIADB_PASSWORD'],
+	db=os.environ['MARIADB_DATABASE'])
 cursor = mydb.cursor()
 
 cursor.execute("select * from greenhouse_links")
@@ -62,7 +62,7 @@ for g in greenhouse:
 	print(g["url"])
 	for job in response.json()["jobs"]:
 		if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]):
-			email_list.append("{} - {} : {}".format(g["name"], job["title"], job["absolute_url"]))
+			email_list.append("{} - {}({}): {}".format(g["name"], job["title"], job["location"]["name"], job["absolute_url"]))
 
 
 for l in lever:
@@ -81,7 +81,7 @@ for l in lever:
 	print(l["url"])
 	for job in response.json():
 		if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]):
-			email_list.append("{} - {} : {}".format(l["name"], job["text"], job["hostedUrl"]))
+			email_list.append("{} - {}({}): {}".format(l["name"], job["text"], job["categories"]["location"], job["hostedUrl"]))
 
 now = datetime.now()
 
