@@ -3,6 +3,7 @@ import os
 import json
 import requests
 import MySQLdb
+import logging
 from datetime import datetime
 from sendgrid.helpers.mail import *
 from requests.adapters import HTTPAdapter
@@ -22,6 +23,10 @@ def requests_retry_session(retries=3, backoff_factor=0.3, status_forcelist=(500,
     session.mount('http://', adapter)
     session.mount('https://', adapter)
     return session
+
+logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
+logging.basicConfig(format=logFormatter, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 filter_words = set(["co-op", "coop", "internship", "intern", "student"])
 blacklist = set(["internal", "international"])
@@ -47,16 +52,13 @@ for g in greenhouse:
     try:
         response = requests_retry_session().get(g["url"], timeout=2)
     except Exception as x:
-        print("{} : {}".format(x.__class__.__name__, g["url"]))
-        email_list.append("{} : {}".format(x.__class__.__name__, g["url"]))
+        logger.error("{} : {}".format(x.__class__.__name__, g["url"]))
         continue
 
     if response.status_code != 200:
-        print("Status: {}, Headers: {}, Error Response: {}".format(response.status_code, response.headers, response.text))
-        email_list.append("{} : {}".format(response.status_code, g["url"]))
+        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, g["url"]))
         continue
 
-    print(g["url"])
     for job in response.json()["jobs"]:
         if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]) and str(job["id"]) not in greenhouse_list:
             email_list.append("{} - {}({}): {}".format(g["name"], job["title"], job["location"]["name"], job["absolute_url"]))
@@ -64,24 +66,20 @@ for g in greenhouse:
                 cursor.execute("INSERT INTO greenhouse(`id`) VALUES('{}')".format(job["id"]))
                 mydb.commit()
             except Exception as x:
-                print("{} : {}".format(x.__class__.__name__, g["url"]))
-                email_list.append("{} : {}".format(x.__class__.__name__, g["url"]))
+                logger.error("{} : {}".format(x.__class__.__name__, g["url"]))
                 continue
 
 for l in lever:
     try:
         response = requests_retry_session().get(l["url"], timeout=2)
     except Exception as x:
-        print("{} : {}".format(x.__class__.__name__, l["url"]))
-        email_list.append("{} : {}".format(x.__class__.__name__, l["url"]))
+        logger.error("{} : {}".format(x.__class__.__name__, l["url"]))
         continue
 
     if response.status_code != 200:
-        print("Status: {}, Headers: {}, Error Response: {}".format(response.status_code, response.headers, response.text))
-        email_list.append("{} : {}".format(response.status_code, l["url"]))
+        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, l["url"]))
         continue
         
-    print(l["url"])
     for job in response.json():
         if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]) and str(job["id"]) not in lever_list:
             email_list.append("{} - {}({}): {}".format(l["name"], job["text"], job["categories"]["location"], job["hostedUrl"]))
@@ -89,8 +87,7 @@ for l in lever:
                 cursor.execute("INSERT INTO lever(`id`) VALUES('{}')".format(job["id"]))
                 mydb.commit()
             except Exception as x:
-                print("{} : {}".format(x.__class__.__name__, l["url"]))
-                email_list.append("{} : {}".format(x.__class__.__name__, l["url"]))
+                logger.error("{} : {}".format(x.__class__.__name__, l["url"]))
                 continue
 
 cursor.close()
@@ -104,8 +101,8 @@ if email_list:
     content = Content("text/plain", "\n\n".join(email_list))
     mail = Mail(from_email, subject, to_email, content)
     response = sg.client.mail.send.post(request_body=mail.get())
-    print(response.status_code)
-    print(response.body)
-    print(response.headers)
+    logger.info(response.status_code)
+    logger.info(response.body)
+    logger.info(response.headers)
 else:
-    print("No new jobs for: {}".format(now.strftime("%x")))
+    logger.info("No new jobs for: {}".format(now.strftime("%x")))
