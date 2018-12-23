@@ -46,7 +46,8 @@ cursor.execute("select * from greenhouse_links")
 greenhouse = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
 cursor.execute("select * from lever_links")
 lever = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
-cursor.execute("select * from greenhouse")
+cursor.execute("select * from jobscore_links")
+jobscore = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
 cursor.close()
 
 email_list = []
@@ -81,6 +82,21 @@ for l in lever:
 	for job in response.json():
 		if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]):
 			email_list.append("{} - {}({}): {}".format(l["name"], job["text"], job["categories"]["location"], job["hostedUrl"]))
+
+for j in jobscore:
+	try:
+		response = requests_retry_session().get(j["url"], timeout=2)
+	except Exception as x:
+		logger.error("{} : {}".format(x.__class__.__name__, j["url"]))
+		continue
+
+	if response.status_code != 200:
+		logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, j["url"]))
+		continue
+
+	for job in response.json()["jobs"]:
+		if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]):
+			email_list.append("{} - {}({}): {}".format(j["name"], job["title"], job["location"], job["detail_url"]))
 
 now = datetime.now()
 

@@ -41,10 +41,14 @@ cursor.execute("select * from greenhouse_links")
 greenhouse = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
 cursor.execute("select * from lever_links")
 lever = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
+cursor.execute("select * from jobscore_links")
+jobscore = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
 cursor.execute("select * from greenhouse")
 greenhouse_list = [item[0] for item in cursor.fetchall()]
 cursor.execute("select * from lever")
 lever_list = [item[0] for item in cursor.fetchall()]
+cursor.execute("select * from jobscore")
+jobscore_list = [item[0] for item in cursor.fetchall()]
 
 email_list = []
 
@@ -88,6 +92,27 @@ for l in lever:
                 mydb.commit()
             except Exception as x:
                 logger.error("{} : {}".format(x.__class__.__name__, l["url"]))
+                continue
+
+for j in jobscore:
+    try:
+        response = requests_retry_session().get(j["url"], timeout=2)
+    except Exception as x:
+        logger.error("{} : {}".format(x.__class__.__name__, j["url"]))
+        continue
+
+    if response.status_code != 200:
+        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, j["url"]))
+        continue
+
+    for job in response.json()["jobs"]:
+        if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]) and str(job["id"]) not in jobscore_list:
+            email_list.append("{} - {}({}): {}".format(j["name"], job["title"], job["location"], job["detail_url"]))
+            try:
+                cursor.execute("INSERT INTO jobscore(`id`) VALUES('{}')".format(job["id"]))
+                mydb.commit()
+            except Exception as x:
+                logger.error("{} : {}".format(x.__class__.__name__, j["url"]))
                 continue
 
 cursor.close()
