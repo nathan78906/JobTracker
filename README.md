@@ -78,6 +78,7 @@
 - TWG
 - Patreon
 - Coveo
+- Dropbox
 - Shopify
 - Affirm
 - Credit Karma
@@ -116,4 +117,10 @@
 - Auth0
 - CrowdRiff
 - StackAdapt
+- Plaid
+- Minted
+- Rover
+- Zoom
 - Dialpad
+- Teradici
+- Tapjoy
