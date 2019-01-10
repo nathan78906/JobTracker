@@ -1,6 +1,6 @@
 # JobTracker
-- Tracks job postings and sends updates of new postings via email using SendGrid
-- Uses the Greenhouse and Lever job board APIs to search for new job updates
+- Tracks company job boards and sends updates of new postings via email (using SendGrid)
+- Uses the Greenhouse, Lever, and Jobscore APIs to check for new job updates
 
 ### Company List
 - Ritual
