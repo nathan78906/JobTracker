@@ -28,8 +28,8 @@ logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=logFormatter, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-filter_words = set(["co-op", "coop", "internship", "intern", "student", "grad"])
-blacklist = set(["internal", "international", "legal", "design", "market", "manage", "social", "sales", "creative", "policy", "research"])
+filter_words = set(json.loads(os.environ['FILTER_WORDS']))
+blacklist = set(json.loads(os.environ['BLACKLIST']))
 
 mydb = MySQLdb.connect(host=os.environ['MARIADB_HOSTNAME'],
     user=os.environ['MARIADB_USERNAME'],
