@@ -101,7 +101,7 @@ for j in jobscore:
 now = datetime.now()
 
 sg = sendgrid.SendGridAPIClient(apikey=os.environ['SENDGRID_API_KEY'])
-from_email = Email("intern@jobs.com", "InternTracker")
+from_email = Email(os.environ['FROM_EMAIL'], os.environ['FROM_NAME'])
 to_email = Email(os.environ['TO_EMAIL'])
 subject = "Internships & Co-ops - {}".format(now.strftime("%x"))
 content = Content("text/plain", "\n\n".join(email_list))
