@@ -11,23 +11,23 @@ from requests.packages.urllib3.util.retry import Retry
 
 
 def requests_retry_session(
-	retries=3,
-	backoff_factor=0.3,
-	status_forcelist=(500, 502, 504),
-	session=None,
+    retries=3,
+    backoff_factor=0.3,
+    status_forcelist=(500, 502, 504),
+    session=None,
 ):
-	session = session or requests.Session()
-	retry = Retry(
-		total=retries,
-		read=retries,
-		connect=retries,
-		backoff_factor=backoff_factor,
-		status_forcelist=status_forcelist,
-	)
-	adapter = HTTPAdapter(max_retries=retry)
-	session.mount('http://', adapter)
-	session.mount('https://', adapter)
-	return session
+    session = session or requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
 
 logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=logFormatter, level=logging.DEBUG)
@@ -37,9 +37,9 @@ filter_words = set(json.loads(os.environ['FILTER_WORDS']))
 blacklist = set(json.loads(os.environ['BLACKLIST']))
 
 mydb = MySQLdb.connect(host=os.environ['MARIADB_HOSTNAME'],
-	user=os.environ['MARIADB_USERNAME'],
-	passwd=os.environ['MARIADB_PASSWORD'],
-	db=os.environ['MARIADB_DATABASE'])
+    user=os.environ['MARIADB_USERNAME'],
+    passwd=os.environ['MARIADB_PASSWORD'],
+    db=os.environ['MARIADB_DATABASE'])
 cursor = mydb.cursor()
 
 cursor.execute("select * from greenhouse_links")
@@ -53,50 +53,50 @@ cursor.close()
 email_list = []
 
 for g in greenhouse:
-	try:
-		response = requests_retry_session().get(g["url"], timeout=2)
-	except Exception as x:
-		logger.error("{} : {}".format(x.__class__.__name__, g["url"]))
-		continue
+    try:
+        response = requests_retry_session().get(g["url"], timeout=2)
+    except Exception as x:
+        logger.error("{} : {}".format(x.__class__.__name__, g["url"]))
+        continue
 
-	if response.status_code != 200:
-		logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, g["url"]))
-		continue
+    if response.status_code != 200:
+        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, g["url"]))
+        continue
 
-	for job in response.json()["jobs"]:
-		if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]):
-			email_list.append("{} - {}({}): {}".format(g["name"], job["title"], job["location"]["name"], job["absolute_url"]))
+    for job in response.json()["jobs"]:
+        if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]):
+            email_list.append("{} - {}({}): {}".format(g["name"], job["title"], job["location"]["name"], job["absolute_url"]))
 
 
 for l in lever:
-	try:
-		response = requests_retry_session().get(l["url"], timeout=2)
-	except Exception as x:
-		logger.error("{} : {}".format(x.__class__.__name__, l["url"]))
-		continue
+    try:
+        response = requests_retry_session().get(l["url"], timeout=2)
+    except Exception as x:
+        logger.error("{} : {}".format(x.__class__.__name__, l["url"]))
+        continue
 
-	if response.status_code != 200:
-		logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, l["url"]))
-		continue
-		
-	for job in response.json():
-		if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]):
-			email_list.append("{} - {}({}): {}".format(l["name"], job["text"], job["categories"]["location"], job["hostedUrl"]))
+    if response.status_code != 200:
+        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, l["url"]))
+        continue
+        
+    for job in response.json():
+        if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]):
+            email_list.append("{} - {}({}): {}".format(l["name"], job["text"], job["categories"]["location"], job["hostedUrl"]))
 
 for j in jobscore:
-	try:
-		response = requests_retry_session().get(j["url"], timeout=2)
-	except Exception as x:
-		logger.error("{} : {}".format(x.__class__.__name__, j["url"]))
-		continue
+    try:
+        response = requests_retry_session().get(j["url"], timeout=2)
+    except Exception as x:
+        logger.error("{} : {}".format(x.__class__.__name__, j["url"]))
+        continue
 
-	if response.status_code != 200:
-		logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, j["url"]))
-		continue
+    if response.status_code != 200:
+        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, j["url"]))
+        continue
 
-	for job in response.json()["jobs"]:
-		if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]):
-			email_list.append("{} - {}({}): {}".format(j["name"], job["title"], job["location"], job["detail_url"]))
+    for job in response.json()["jobs"]:
+        if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]):
+            email_list.append("{} - {}({}): {}".format(j["name"], job["title"], job["location"], job["detail_url"]))
 
 now = datetime.now()
 
