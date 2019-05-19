@@ -130,4 +130,4 @@ if email_list:
     logger.info(response.body)
     logger.info(response.headers)
 else:
-    logger.info("No new jobs for: {}".format(now.strftime("%m/%d/%Y, %H:%M:%S"))
+    logger.info("No new jobs for: {}".format(now.strftime("%m/%d/%Y, %H:%M:%S")))
