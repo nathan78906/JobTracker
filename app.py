@@ -10,7 +10,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 
-def requests_retry_session(retries=3, backoff_factor=0.3, status_forcelist=(500, 502, 504), session=None):
+def requests_retry_session(retries=3, backoff_factor=0.3, status_forcelist=range(500, 600), session=None):
     session = session or requests.Session()
     retry = Retry(
         total=retries,
