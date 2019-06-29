@@ -65,7 +65,7 @@ for g in greenhouse:
 
     for job in response.json()["jobs"]:
         if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]) and str(job["id"]) not in greenhouse_list:
-            email_list.append("{} - {}({}): {}".format(g["name"], job["title"], job["location"]["name"], job["absolute_url"]))
+            email_list.append("{} - {} ({}): {}".format(g["name"], job["title"].rstrip(), job["location"]["name"], job["absolute_url"]))
             try:
                 cursor.execute("INSERT INTO greenhouse(`id`) VALUES('{}')".format(job["id"]))
                 mydb.commit()
@@ -86,7 +86,7 @@ for l in lever:
         
     for job in response.json():
         if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]) and str(job["id"]) not in lever_list:
-            email_list.append("{} - {}({}): {}".format(l["name"], job["text"], job["categories"]["location"], job["hostedUrl"]))
+            email_list.append("{} - {} ({}): {}".format(l["name"], job["text"].rstrip(), job["categories"]["location"], job["hostedUrl"]))
             try:
                 cursor.execute("INSERT INTO lever(`id`) VALUES('{}')".format(job["id"]))
                 mydb.commit()
@@ -107,7 +107,7 @@ for j in jobscore:
 
     for job in response.json()["jobs"]:
         if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]) and str(job["id"]) not in jobscore_list:
-            email_list.append("{} - {}({}): {}".format(j["name"], job["title"], job["location"], job["detail_url"]))
+            email_list.append("{} - {} ({}): {}".format(j["name"], job["title"].rstrip(), job["location"], job["detail_url"]))
             try:
                 cursor.execute("INSERT INTO jobscore(`id`) VALUES('{}')".format(job["id"]))
                 mydb.commit()

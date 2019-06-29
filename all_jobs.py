@@ -65,7 +65,7 @@ for g in greenhouse:
 
     for job in response.json()["jobs"]:
         if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]):
-            email_list.append("{} - {}({}): {}".format(g["name"], job["title"], job["location"]["name"], job["absolute_url"]))
+            email_list.append("{} - {} ({}): {}".format(g["name"], job["title"].rstrip(), job["location"]["name"], job["absolute_url"]))
 
 
 for l in lever:
@@ -81,7 +81,7 @@ for l in lever:
         
     for job in response.json():
         if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]):
-            email_list.append("{} - {}({}): {}".format(l["name"], job["text"], job["categories"]["location"], job["hostedUrl"]))
+            email_list.append("{} - {} ({}): {}".format(l["name"], job["text"].rstrip(), job["categories"]["location"], job["hostedUrl"]))
 
 for j in jobscore:
     try:
@@ -96,7 +96,7 @@ for j in jobscore:
 
     for job in response.json()["jobs"]:
         if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]):
-            email_list.append("{} - {}({}): {}".format(j["name"], job["title"], job["location"], job["detail_url"]))
+            email_list.append("{} - {} ({}): {}".format(j["name"], job["title"].rstrip(), job["location"], job["detail_url"]))
 
 now = datetime.now()
 
