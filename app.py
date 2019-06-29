@@ -122,7 +122,7 @@ if email_list:
     sg = sendgrid.SendGridAPIClient(apikey=os.environ['SENDGRID_API_KEY'])
     from_email = Email(os.environ['FROM_EMAIL'], os.environ['FROM_NAME'])
     to_email = Email(os.environ['TO_EMAIL'])
-    subject = "Internships & Co-ops - {}".format(now.strftime("%x"))
+    subject = "Jobs - {}".format(now.strftime("%x"))
     content = Content("text/plain", "\n\n".join(email_list))
     mail = Mail(from_email, subject, to_email, content)
     response = sg.client.mail.send.post(request_body=mail.get())
