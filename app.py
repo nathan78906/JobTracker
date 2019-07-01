@@ -4,6 +4,7 @@ import json
 import requests
 import MySQLdb
 import logging
+from Job import jobs_response, create_job, Job
 from datetime import datetime
 from sendgrid.helpers.mail import *
 from requests.adapters import HTTPAdapter
@@ -38,11 +39,11 @@ mydb = MySQLdb.connect(host=os.environ['MARIADB_HOSTNAME'],
 cursor = mydb.cursor()
 
 cursor.execute("select * from greenhouse_links")
-greenhouse = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
+greenhouse = [{'name': item[1], 'url': item[2], 'type': 'greenhouse'} for item in cursor.fetchall()]
 cursor.execute("select * from lever_links")
-lever = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
+lever = [{'name': item[1], 'url': item[2], 'type': 'lever'} for item in cursor.fetchall()]
 cursor.execute("select * from jobscore_links")
-jobscore = [{'name': item[1], 'url': item[2]} for item in cursor.fetchall()]
+jobscore = [{'name': item[1], 'url': item[2], 'type': 'jobscore'} for item in cursor.fetchall()]
 cursor.execute("select * from greenhouse")
 greenhouse_list = [item[0] for item in cursor.fetchall()]
 cursor.execute("select * from lever")
@@ -50,69 +51,30 @@ lever_list = [item[0] for item in cursor.fetchall()]
 cursor.execute("select * from jobscore")
 jobscore_list = [item[0] for item in cursor.fetchall()]
 
+completed_list = greenhouse_list + lever_list + jobscore_list
+links_list = greenhouse + lever + jobscore
 email_list = []
 
-for g in greenhouse:
+for link in links_list:
     try:
-        response = requests_retry_session().get(g["url"], timeout=2)
+        response = requests_retry_session().get(link["url"], timeout=2)
     except Exception as x:
-        logger.error("{} : {}".format(x.__class__.__name__, g["url"]))
+        logger.error("{} : {}".format(x.__class__.__name__, link["url"]))
         continue
 
     if response.status_code != 200:
-        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, g["url"]))
+        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, link["url"]))
         continue
 
-    for job in response.json()["jobs"]:
-        if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]) and str(job["id"]) not in greenhouse_list:
-            email_list.append("{} - {} ({}): {}".format(g["name"], job["title"].rstrip(), job["location"]["name"], job["absolute_url"]))
+    for job in jobs_response(response, link):
+        job = create_job(job, link)
+        if any([x in job.title for x in filter_words]) and not any([x in job.title for x in blacklist]) and job.id not in completed_list:
+            email_list.append("{} - {} ({}): {}".format(link["name"], job.title, job.location, job.url))
             try:
-                cursor.execute("INSERT INTO greenhouse(`id`) VALUES('{}')".format(job["id"]))
+                cursor.execute("INSERT INTO {}(`id`) VALUES('{}')".format(link["type"], job.id))
                 mydb.commit()
             except Exception as x:
-                logger.error("{} : {}".format(x.__class__.__name__, g["url"]))
-                continue
-
-for l in lever:
-    try:
-        response = requests_retry_session().get(l["url"], timeout=2)
-    except Exception as x:
-        logger.error("{} : {}".format(x.__class__.__name__, l["url"]))
-        continue
-
-    if response.status_code != 200:
-        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, l["url"]))
-        continue
-        
-    for job in response.json():
-        if any([x in job["text"].lower() for x in filter_words]) and not any([x in job["text"].lower() for x in blacklist]) and str(job["id"]) not in lever_list:
-            email_list.append("{} - {} ({}): {}".format(l["name"], job["text"].rstrip(), job["categories"]["location"], job["hostedUrl"]))
-            try:
-                cursor.execute("INSERT INTO lever(`id`) VALUES('{}')".format(job["id"]))
-                mydb.commit()
-            except Exception as x:
-                logger.error("{} : {}".format(x.__class__.__name__, l["url"]))
-                continue
-
-for j in jobscore:
-    try:
-        response = requests_retry_session().get(j["url"], timeout=2)
-    except Exception as x:
-        logger.error("{} : {}".format(x.__class__.__name__, j["url"]))
-        continue
-
-    if response.status_code != 200:
-        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, j["url"]))
-        continue
-
-    for job in response.json()["jobs"]:
-        if any([x in job["title"].lower() for x in filter_words]) and not any([x in job["title"].lower() for x in blacklist]) and str(job["id"]) not in jobscore_list:
-            email_list.append("{} - {} ({}): {}".format(j["name"], job["title"].rstrip(), job["location"], job["detail_url"]))
-            try:
-                cursor.execute("INSERT INTO jobscore(`id`) VALUES('{}')".format(job["id"]))
-                mydb.commit()
-            except Exception as x:
-                logger.error("{} : {}".format(x.__class__.__name__, j["url"]))
+                logger.error("{} : {}".format(x.__class__.__name__, link["url"]))
                 continue
 
 cursor.close()
