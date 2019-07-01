@@ -12,19 +12,19 @@ def jobs_response(response, link):
 def create_job(job, link):
     if link["type"] == "greenhouse":
         return Job(
-            title=job["title"].lower().rstrip(),
+            title=job.get("title".lower().rstrip(), ""),
             id=str(job["id"]),
-            location=job["location"]["name"].rstrip(),
-            url=job["absolute_url"])
+            location=job.get("location", {}).get("name".rstrip(), ""),
+            url=job.get("absolute_url".lower().rstrip(), ""))
     elif link["type"] == "lever":
         return Job(
-            title=job["text"].lower().rstrip(),
+            title=job.get("text".lower().rstrip(), ""),
             id=str(job["id"]),
-            location=job["categories"]["location"].rstrip(),
-            url=job["hostedUrl"])
+            location=job.get("categories", {}).get("location".rstrip(), ""),
+            url=job.get("hostedUrl".lower().rstrip(), ""))
     elif link["type"] == "jobscore":
         return Job(
-            title=job["title"].lower().rstrip(),
+            title=job.get("title".lower().rstrip(), ""),
             id=str(job["id"]),
-            location=job["location"].rstrip(),
-            url=job["detail_url"])
+            location=job.get("location".rstrip(), ""),
+            url=job.get("detail_url".lower().rstrip(), ""))
