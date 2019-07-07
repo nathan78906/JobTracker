@@ -17,19 +17,19 @@ def create_job(job, link):
             title=job.get("title".lower().rstrip(), ""),
             id=str(job["id"]),
             location=job.get("location", {}).get("name".rstrip(), ""),
-            url=job.get("absolute_url".lower().rstrip(), ""))
+            url=job.get("absolute_url".rstrip(), ""))
     elif link["type"] == "lever":
         return Job(
             title=job.get("text".lower().rstrip(), ""),
             id=str(job["id"]),
             location=job.get("categories", {}).get("location".rstrip(), ""),
-            url=job.get("hostedUrl".lower().rstrip(), ""))
+            url=job.get("hostedUrl".rstrip(), ""))
     elif link["type"] == "jobscore":
         return Job(
             title=job.get("title".lower().rstrip(), ""),
             id=str(job["id"]),
             location=job.get("location".rstrip(), ""),
-            url=job.get("detail_url".lower().rstrip(), ""))
+            url=job.get("detail_url".rstrip(), ""))
     elif link["type"] == "ultipro":
         return Job(
             title=job.get("Title".lower().rstrip(), ""),

@@ -67,7 +67,7 @@ for link in links_list:
 
     for job in jobs_response(response, link):
         job = create_job(job, link)
-        if any([x in job.title for x in filter_words]) and not any([x in job.title for x in blacklist]) and job.id not in completed_list:
+        if any([x in job.title for x in filter_words]) and not any([x in job.title for x in blacklist]):
             email_list.append("{} - {} ({}): {}".format(link["name"], job.title, job.location, job.url))
 
 now = datetime.now()
