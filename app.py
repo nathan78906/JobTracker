@@ -44,15 +44,19 @@ cursor.execute("select * from lever_links")
 lever = [{'name': item[1], 'url': item[2], 'type': 'lever'} for item in cursor.fetchall()]
 cursor.execute("select * from jobscore_links")
 jobscore = [{'name': item[1], 'url': item[2], 'type': 'jobscore'} for item in cursor.fetchall()]
+cursor.execute("select * from ultipro_links")
+ultipro = [{'name': item[1], 'url': item[2], 'type': 'ultipro'} for item in cursor.fetchall()]
 cursor.execute("select * from greenhouse")
 greenhouse_list = [item[0] for item in cursor.fetchall()]
 cursor.execute("select * from lever")
 lever_list = [item[0] for item in cursor.fetchall()]
 cursor.execute("select * from jobscore")
 jobscore_list = [item[0] for item in cursor.fetchall()]
+cursor.execute("select * from ultipro")
+ultipro_list = [item[0] for item in cursor.fetchall()]
 
-completed_list = greenhouse_list + lever_list + jobscore_list
-links_list = greenhouse + lever + jobscore
+completed_list = greenhouse_list + lever_list + jobscore_list + ultipro_list
+links_list = greenhouse + lever + jobscore + ultipro
 email_list = []
 
 for link in links_list:

@@ -6,6 +6,8 @@ class Job:
 def jobs_response(response, link):
     if link["type"] == "greenhouse" or link["type"] == "jobscore":
         return response.json()["jobs"]
+    elif link["type"] == "ultipro":
+        return response.json()["opportunities"]
     elif link["type"] == "lever":
         return response.json()
 
@@ -28,3 +30,9 @@ def create_job(job, link):
             id=str(job["id"]),
             location=job.get("location".rstrip(), ""),
             url=job.get("detail_url".lower().rstrip(), ""))
+    elif link["type"] == "ultipro":
+        return Job(
+            title=job.get("Title".lower().rstrip(), ""),
+            id=str(job["Id"]),
+            location=job.get("Locations", [""])[0].get("Address", {}).get("City".rstrip(), ""),
+            url=link["url"].rstrip("JobBoardView/LoadSearchResults") + "/OpportunityDetail?opportunityId=" + str(job["Id"]))
