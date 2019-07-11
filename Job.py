@@ -31,8 +31,9 @@ def create_job(job, link):
             location=job.get("location", "").rstrip(),
             url=job.get("detail_url", "").rstrip())
     elif link["type"] == "ultipro":
+        city = job.get("Locations", [{}])[0].get("Address", {}).get("City", "") or ""
         return Job(
             title=job.get("Title", "").rstrip(),
             id=str(job["Id"]),
-            location=job.get("Locations", [{}])[0].get("Address", {}).get("City", "").rstrip(),
+            location=city.rstrip(),
             url=link["url"].rstrip("JobBoardView/LoadSearchResults") + "/OpportunityDetail?opportunityId=" + str(job["Id"]))
