@@ -17,23 +17,27 @@ def create_job(job, link):
             title=job.get("title", "").rstrip(),
             id=str(job["id"]),
             location=job.get("location", {}).get("name", "").rstrip(),
-            url=job.get("absolute_url", "").rstrip())
+            url=job.get("absolute_url", "").rstrip(),
+            updated_at=str(job.get("updated_at", "")))
     elif link["type"] == "lever":
         return Job(
             title=job.get("text", "").rstrip(),
             id=str(job["id"]),
             location=job.get("categories", {}).get("location", "").rstrip(),
-            url=job.get("hostedUrl", "").rstrip())
+            url=job.get("hostedUrl", "").rstrip(),
+            updated_at=str(job.get("createdAt", "")))
     elif link["type"] == "jobscore":
         return Job(
             title=job.get("title", "").rstrip(),
             id=str(job["id"]),
             location=job.get("location", "").rstrip(),
-            url=job.get("detail_url", "").rstrip())
+            url=job.get("detail_url", "").rstrip(),
+            updated_at=str(job.get("last_updated_date", "")))
     elif link["type"] == "ultipro":
         city = job.get("Locations", [{}])[0].get("Address", {}).get("City", "") or ""
         return Job(
             title=job.get("Title", "").rstrip(),
             id=str(job["Id"]),
             location=city.rstrip(),
-            url=link["url"].rstrip("JobBoardView/LoadSearchResults") + "/OpportunityDetail?opportunityId=" + str(job["Id"]))
+            url=link["url"].rstrip("JobBoardView/LoadSearchResults") + "/OpportunityDetail?opportunityId=" + str(job["Id"]),
+            updated_at=str(job.get("PostedDate", "")))

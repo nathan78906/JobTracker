@@ -47,13 +47,13 @@ jobscore = [{'name': item[1], 'url': item[2], 'type': 'jobscore'} for item in cu
 cursor.execute("select * from ultipro_links")
 ultipro = [{'name': item[1], 'url': item[2], 'type': 'ultipro'} for item in cursor.fetchall()]
 cursor.execute("select * from greenhouse")
-greenhouse_list = [item[0] for item in cursor.fetchall()]
+greenhouse_list = [{'id': item[0], 'updated_at': item[2]} for item in cursor.fetchall()]
 cursor.execute("select * from lever")
-lever_list = [item[0] for item in cursor.fetchall()]
+lever_list = [{'id': item[0], 'updated_at': item[2]} for item in cursor.fetchall()]
 cursor.execute("select * from jobscore")
-jobscore_list = [item[0] for item in cursor.fetchall()]
+jobscore_list = [{'id': item[0], 'updated_at': item[2]} for item in cursor.fetchall()]
 cursor.execute("select * from ultipro")
-ultipro_list = [item[0] for item in cursor.fetchall()]
+ultipro_list = [{'id': item[0], 'updated_at': item[2]} for item in cursor.fetchall()]
 
 completed_list = greenhouse_list + lever_list + jobscore_list + ultipro_list
 links_list = greenhouse + lever + jobscore + ultipro
@@ -72,10 +72,10 @@ for link in links_list:
 
     for job in jobs_response(response, link):
         job = create_job(job, link)
-        if any([x in job.title.lower() for x in filter_words]) and not any([x in job.title.lower() for x in blacklist]) and job.id not in completed_list:
+        if any([x in job.title.lower() for x in filter_words]) and not any([x in job.title.lower() for x in blacklist]) and {'id': job.id, 'updated_at': job.updated_at} not in completed_list:
             email_list.append("{} - {} ({}): {}".format(link["name"], job.title, job.location, job.url))
             try:
-                cursor.execute("INSERT INTO {}(`id`) VALUES('{}')".format(link["type"], job.id))
+                cursor.execute("INSERT INTO {0}(`id`, `updated_at`) VALUES('{1}', '{2}') ON DUPLICATE KEY UPDATE `updated_at`='{2}'".format(link["type"], job.id, job.updated_at))
                 mydb.commit()
             except Exception as x:
                 logger.error("{} : {}".format(x.__class__.__name__, link["url"]))
