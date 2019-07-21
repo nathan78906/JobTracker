@@ -4,12 +4,17 @@ import json
 import requests
 import MySQLdb
 import logging
+import argparse
 from Job import jobs_response, create_job, Job
 from datetime import datetime
 from sendgrid.helpers.mail import *
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--filter_words", help="pass in optional filter words")
+parser.add_argument("--blacklist", help="pass in optional blacklist")
+args = parser.parse_args()
 
 def requests_retry_session(
     retries=3,
@@ -34,8 +39,14 @@ logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=logFormatter, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-filter_words = set(json.loads(os.environ['FILTER_WORDS']))
-blacklist = set(json.loads(os.environ['BLACKLIST']))
+if args.filter_words:
+    filter_words = set(json.loads(args.filter_words))
+else:
+    filter_words = set(json.loads(os.environ['FILTER_WORDS']))
+if args.blacklist:
+    blacklist = set(json.loads(args.blacklist))
+else:
+    blacklist = set(json.loads(os.environ['BLACKLIST']))
 
 mydb = MySQLdb.connect(host=os.environ['MARIADB_HOSTNAME'],
     user=os.environ['MARIADB_USERNAME'],
