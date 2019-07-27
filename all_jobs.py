@@ -2,7 +2,7 @@ import sendgrid
 import os
 import json
 import requests
-import MySQLdb
+import pymysql
 import logging
 import argparse
 from Job import jobs_response, create_job, Job
@@ -48,7 +48,7 @@ if args.blacklist:
 else:
     blacklist = set(json.loads(os.environ['BLACKLIST']))
 
-mydb = MySQLdb.connect(host=os.environ['MARIADB_HOSTNAME'],
+mydb = pymysql.connect(host=os.environ['MARIADB_HOSTNAME'],
     user=os.environ['MARIADB_USERNAME'],
     passwd=os.environ['MARIADB_PASSWORD'],
     db=os.environ['MARIADB_DATABASE'])
