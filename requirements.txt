@@ -1,3 +1,4 @@
 requests
 sendgrid
 pymysql
+sentry-sdk
