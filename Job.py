@@ -3,6 +3,7 @@ class Job:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+
 def jobs_response(response, link):
     if link["type"] == "greenhouse" or link["type"] == "jobscore":
         return response.json()["jobs"]
@@ -10,6 +11,7 @@ def jobs_response(response, link):
         return response.json()["opportunities"]
     elif link["type"] == "lever":
         return response.json()
+
 
 def create_job(job, link):
     if link["type"] == "greenhouse":

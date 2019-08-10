@@ -6,7 +6,7 @@ import pymysql
 import logging
 import sentry_sdk
 import argparse
-from Job import jobs_response, create_job, Job
+from Job import jobs_response, create_job
 from datetime import datetime
 from sendgrid.helpers.mail import *
 from requests.adapters import HTTPAdapter
@@ -17,12 +17,8 @@ parser.add_argument("--filter_words", help="pass in optional filter words")
 parser.add_argument("--blacklist", help="pass in optional blacklist")
 args = parser.parse_args()
 
-def requests_retry_session(
-    retries=3,
-    backoff_factor=0.3,
-    status_forcelist=range(500, 600),
-    session=None,
-):
+
+def requests_retry_session(retries=3, backoff_factor=0.3, status_forcelist=range(500, 600), session=None):
     session = session or requests.Session()
     retry = Retry(
         total=retries,
@@ -36,19 +32,14 @@ def requests_retry_session(
     session.mount('https://', adapter)
     return session
 
+
 sentry_sdk.init(dsn=os.environ['SENTRY'])
 logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=logFormatter, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-if args.filter_words:
-    filter_words = set(json.loads(args.filter_words))
-else:
-    filter_words = set(json.loads(os.environ['FILTER_WORDS']))
-if args.blacklist:
-    blacklist = set(json.loads(args.blacklist))
-else:
-    blacklist = set(json.loads(os.environ['BLACKLIST']))
+filter_words = set(json.loads(args.filter_words)) if args.filter_words else set(json.loads(os.environ['FILTER_WORDS']))
+blacklist = set(json.loads(args.blacklist)) if args.blacklist else set(json.loads(os.environ['BLACKLIST']))
 
 mydb = pymysql.connect(host=os.environ['MARIADB_HOSTNAME'],
     user=os.environ['MARIADB_USERNAME'],

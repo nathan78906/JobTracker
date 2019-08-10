@@ -5,7 +5,7 @@ import requests
 import pymysql
 import logging
 import sentry_sdk
-from Job import jobs_response, create_job, Job
+from Job import jobs_response, create_job
 from datetime import datetime
 from sendgrid.helpers.mail import *
 from requests.adapters import HTTPAdapter
@@ -25,6 +25,7 @@ def requests_retry_session(retries=3, backoff_factor=0.3, status_forcelist=range
     session.mount('http://', adapter)
     session.mount('https://', adapter)
     return session
+
 
 sentry_sdk.init(dsn=os.environ['SENTRY'])
 logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
