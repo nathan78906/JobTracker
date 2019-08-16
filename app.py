@@ -41,25 +41,25 @@ mydb = pymysql.connect(host=os.environ['MARIADB_HOSTNAME'],
     db=os.environ['MARIADB_DATABASE'])
 cursor = mydb.cursor()
 
+links_list = []
+completed_list = []
 cursor.execute("select * from greenhouse_links")
-greenhouse = [{'name': item[1], 'url': item[2], 'type': 'greenhouse'} for item in cursor.fetchall()]
+links_list += [{'name': item[1], 'url': item[2], 'type': 'greenhouse'} for item in cursor]
 cursor.execute("select * from lever_links")
-lever = [{'name': item[1], 'url': item[2], 'type': 'lever'} for item in cursor.fetchall()]
+links_list += [{'name': item[1], 'url': item[2], 'type': 'lever'} for item in cursor]
 cursor.execute("select * from jobscore_links")
-jobscore = [{'name': item[1], 'url': item[2], 'type': 'jobscore'} for item in cursor.fetchall()]
+links_list += [{'name': item[1], 'url': item[2], 'type': 'jobscore'} for item in cursor]
 cursor.execute("select * from ultipro_links")
-ultipro = [{'name': item[1], 'url': item[2], 'type': 'ultipro'} for item in cursor.fetchall()]
+links_list += [{'name': item[1], 'url': item[2], 'type': 'ultipro'} for item in cursor]
 cursor.execute("select * from greenhouse")
-greenhouse_list = [item[0] for item in cursor.fetchall()]
+completed_list += [item[0] for item in cursor]
 cursor.execute("select * from lever")
-lever_list = [item[0] for item in cursor.fetchall()]
+completed_list += [item[0] for item in cursor]
 cursor.execute("select * from jobscore")
-jobscore_list = [item[0] for item in cursor.fetchall()]
+completed_list += [item[0] for item in cursor]
 cursor.execute("select * from ultipro")
-ultipro_list = [item[0] for item in cursor.fetchall()]
+completed_list += [item[0] for item in cursor]
 
-completed_list = greenhouse_list + lever_list + jobscore_list + ultipro_list
-links_list = greenhouse + lever + jobscore + ultipro
 email_list = []
 
 for link in links_list:
