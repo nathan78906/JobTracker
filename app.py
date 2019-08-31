@@ -51,6 +51,8 @@ cursor.execute("select * from jobscore_links")
 links_list += [{'name': item[1], 'url': item[2], 'type': 'jobscore'} for item in cursor]
 cursor.execute("select * from ultipro_links")
 links_list += [{'name': item[1], 'url': item[2], 'type': 'ultipro'} for item in cursor]
+cursor.execute("select * from adp_links")
+links_list += [{'name': item[1], 'url': item[2], 'type': 'adp'} for item in cursor]
 cursor.execute("select * from greenhouse")
 completed_list += [item[0] for item in cursor]
 cursor.execute("select * from lever")
@@ -58,6 +60,8 @@ completed_list += [item[0] for item in cursor]
 cursor.execute("select * from jobscore")
 completed_list += [item[0] for item in cursor]
 cursor.execute("select * from ultipro")
+completed_list += [item[0] for item in cursor]
+cursor.execute("select * from adp")
 completed_list += [item[0] for item in cursor]
 
 email_list = []

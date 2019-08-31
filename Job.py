@@ -9,6 +9,8 @@ def jobs_response(response, link):
         return response.json()["jobs"]
     elif link["type"] == "ultipro":
         return response.json()["opportunities"]
+    elif link["type"] == "adp":
+        return response.json()["jobRequisitions"]
     elif link["type"] == "lever":
         return response.json()
 
@@ -39,3 +41,10 @@ def create_job(job, link):
             id=str(job["Id"]),
             location=city.rstrip(),
             url=link["url"].rstrip("JobBoardView/LoadSearchResults") + "/OpportunityDetail?opportunityId=" + str(job["Id"]))
+    elif link["type"] == "adp":
+        city = job.get("requisitionLocations", [{}])[0].get("address", {}),get("cityName", "") or ""
+        return Job(
+            title=job.get("requisitionTitle", "").rstrip(),
+            id=str(job["itemID"]),
+            location=job.get("location", "").rstrip(),
+            url=link["url"].replace("careercenter/public/events/staffing/v1/job-requisitions", "mdf/recruitment/recruitment.html") + "&jobId=" + str(job["customFieldGroup"]["stringFields"][0]["stringValue"]))
