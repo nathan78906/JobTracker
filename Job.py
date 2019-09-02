@@ -42,7 +42,7 @@ def create_job(job, link):
             location=city.rstrip(),
             url=link["url"].rstrip("JobBoardView/LoadSearchResults") + "/OpportunityDetail?opportunityId=" + str(job["Id"]))
     elif link["type"] == "adp":
-        city = job.get("requisitionLocations", [{}])[0].get("address", {}),get("cityName", "") or ""
+        city = job.get("requisitionLocations", [{}])[0].get("address", {}).get("cityName", "") or ""
         return Job(
             title=job.get("requisitionTitle", "").rstrip(),
             id=str(job["itemID"]),
