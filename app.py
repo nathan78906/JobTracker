@@ -85,7 +85,7 @@ for link in links_list:
                 cursor.execute("INSERT INTO {}(`id`) VALUES('{}')".format(link["type"], job.id))
                 mydb.commit()
             except Exception as x:
-                logger.error("{} : {}".format(x.__class__.__name__, link["url"]))
+                logger.error("{} : {}, id=".format(x.__class__.__name__, link["url"], job.id))
                 continue
 
 cursor.close()
