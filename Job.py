@@ -17,10 +17,11 @@ def jobs_response(response, link):
 
 def create_job(job, link):
     if link["type"] == "greenhouse":
+        city = job.get("location", {}).get("name", "") or ""
         return Job(
             title=job.get("title", "").rstrip(),
             id=str(job["id"]),
-            location=job.get("location", {}).get("name", "").rstrip(),
+            location=city.rstrip(),
             url=job.get("absolute_url", "").rstrip())
     elif link["type"] == "lever":
         return Job(

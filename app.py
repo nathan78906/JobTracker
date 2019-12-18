@@ -78,7 +78,11 @@ for link in links_list:
         continue
 
     for job in jobs_response(response, link):
-        job = create_job(job, link)
+        try:
+            job = create_job(job, link)
+        except Exception as x:
+            logger.error("{} : {}".format(x.__class__.__name__, link["url"]))
+            continue
         if job.id not in completed_list and any(x in job.title.lower() for x in filter_words) and not any(x in job.title.lower() for x in blacklist):
             email_list.append("{} - {} ({}): {}".format(link["name"], job.title, job.location, job.url))
             try:
