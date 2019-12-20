@@ -1,31 +1,13 @@
 import sendgrid
 import os
 import json
-import requests
 import pymysql
 import logging
 import sentry_sdk
 from Job import jobs_response, create_job
 from datetime import datetime
 from sendgrid.helpers.mail import *
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
-
-
-def requests_retry_session(retries=3, backoff_factor=0.3, status_forcelist=range(500, 600), session=None):
-    session = session or requests.Session()
-    retry = Retry(
-        total=retries,
-        read=retries,
-        connect=retries,
-        backoff_factor=backoff_factor,
-        status_forcelist=status_forcelist,
-    )
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-    return session
-
+from requests_retry import requests_retry_session
 
 sentry_sdk.init(dsn=os.environ['SENTRY'])
 logFormatter = '%(asctime)s - %(levelname)s - %(message)s'

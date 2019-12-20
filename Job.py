@@ -1,3 +1,5 @@
+from requests_retry import requests_retry_session
+
 class Job:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -14,7 +16,18 @@ def jobs_response(response, link):
     elif link["type"] == "lever":
         return response.json()
     elif link["type"] == "smartrecruiters":
-        return response.json()["content"]
+        result = response.json()["content"]
+        offset = 0
+        total = response.json()["totalFound"]
+        while total - offset > 100:
+            offset += 100
+            try:
+                partial = requests_retry_session().get("{}?offset={}".format(link["url"], offset), timeout=2)
+                result.extend(partial.json()["content"])
+            except Exception as x:
+                logger.error("{} : {}".format(x.__class__.__name__, "{}?offset={}".format(link["url"], offset)))
+                continue
+        return result
 
 
 def create_job(job, link):
