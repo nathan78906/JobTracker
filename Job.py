@@ -13,6 +13,8 @@ def jobs_response(response, link):
         return response.json()["jobRequisitions"]
     elif link["type"] == "lever":
         return response.json()
+    elif link["type"] == "smartrecruiters":
+        return response.json()["content"]
 
 
 def create_job(job, link):
@@ -49,3 +51,9 @@ def create_job(job, link):
             id=str(job["itemID"]),
             location=job.get("location", "").rstrip(),
             url=link["url"].replace("careercenter/public/events/staffing/v1/job-requisitions", "mdf/recruitment/recruitment.html") + "&jobId=" + str(job["customFieldGroup"]["stringFields"][0]["stringValue"]))
+    elif link["type"] == "smartrecruiters":
+        return Job(
+            title=job.get("name", "").rstrip(),
+            id=str(job["id"]),
+            location=job.get("location", {}).get("city", "").rstrip(),
+            url="https://jobs.smartrecruiters.com/{}/{}".format(job["company"]["identifier"], job["id"]))
