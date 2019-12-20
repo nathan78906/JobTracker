@@ -6,7 +6,7 @@ class Job:
             setattr(self, key, value)
 
 
-def jobs_response(response, link):
+def jobs_response(response, link, logger):
     if link["type"] == "greenhouse" or link["type"] == "jobscore":
         return response.json()["jobs"]
     elif link["type"] == "ultipro":

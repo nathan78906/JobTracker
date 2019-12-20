@@ -63,7 +63,7 @@ for link in links_list:
         logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, link["url"]))
         continue
 
-    for job in jobs_response(response, link):
+    for job in jobs_response(response, link, logger):
         try:
             job = create_job(job, link)
         except Exception as x:
