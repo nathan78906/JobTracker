@@ -40,6 +40,8 @@ cursor.execute("select * from ultipro_links")
 links_list += [{'name': item[1], 'url': item[2], 'type': 'ultipro'} for item in cursor]
 cursor.execute("select * from adp_links")
 links_list += [{'name': item[1], 'url': item[2], 'type': 'adp'} for item in cursor]
+cursor.execute("select * from smartrecruiters_links")
+links_list += [{'name': item[1], 'url': item[2], 'type': 'smartrecruiters'} for item in cursor]
 cursor.close()
 
 email_list = []
@@ -55,7 +57,7 @@ for link in links_list:
         logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, link["url"]))
         continue
 
-    for job in jobs_response(response, link):
+    for job in jobs_response(response, link, logger):
         job = create_job(job, link)
         if any(x in job.title.lower() for x in filter_words) and not any(x in job.title.lower() for x in blacklist):
             email_list.append("{} - {} ({}): {}".format(link["name"], job.title, job.location, job.url))
