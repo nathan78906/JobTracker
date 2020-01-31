@@ -60,7 +60,7 @@ for link in links_list:
         continue
 
     if response.status_code != 200:
-        logger.error("Status: {}, Headers: {}, Error Response: {}, Url: {}".format(response.status_code, response.headers, response.text, link["url"]))
+        logger.error("{} : {}".format(response.status_code, link["url"]))
         continue
 
     for job in jobs_response(response, link, logger):
