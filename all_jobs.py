@@ -59,7 +59,8 @@ for link in links_list:
 
     for job in jobs_response(response, link, logger):
         job = create_job(job, link)
-        if any(x in job.title.lower() for x in filter_words) and not any(x in job.title.lower() for x in blacklist):
+        filter_check = job.title.lower() + job.location.lower()
+        if any(x in filter_check for x in filter_words) and not any(x in filter_check for x in blacklist):
             email_list.append("{} - {} ({}): {}".format(link["name"], job.title, job.location, job.url))
 
 now = datetime.now()
