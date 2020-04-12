@@ -29,19 +29,8 @@ mydb = pymysql.connect(host=os.environ['MARIADB_HOSTNAME'],
     db=os.environ['MARIADB_DATABASE'])
 cursor = mydb.cursor()
 
-links_list = []
-cursor.execute("select * from greenhouse_links")
-links_list += [{'name': item[1], 'url': item[2], 'type': 'greenhouse'} for item in cursor]
-cursor.execute("select * from lever_links")
-links_list += [{'name': item[1], 'url': item[2], 'type': 'lever'} for item in cursor]
-cursor.execute("select * from jobscore_links")
-links_list += [{'name': item[1], 'url': item[2], 'type': 'jobscore'} for item in cursor]
-cursor.execute("select * from ultipro_links")
-links_list += [{'name': item[1], 'url': item[2], 'type': 'ultipro'} for item in cursor]
-cursor.execute("select * from adp_links")
-links_list += [{'name': item[1], 'url': item[2], 'type': 'adp'} for item in cursor]
-cursor.execute("select * from smartrecruiters_links")
-links_list += [{'name': item[1], 'url': item[2], 'type': 'smartrecruiters'} for item in cursor]
+cursor.execute("call links()")
+links_list = [{'name': item[0], 'url': item[1], 'type': item[2]} for item in cursor]
 cursor.close()
 
 email_list = []
